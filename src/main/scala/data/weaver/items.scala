@@ -11,6 +11,9 @@ import types._
 object Items extends Dynamic {
   implicit val formats = DefaultFormats
   lazy val all: Map[String, CraftedItem] = {
+    allByName.map { case (name, value) => reformatName(name) -> value }
+  }
+  lazy val allByName = {
     val itemJson = parse(Source.fromResource("Weaver.json").mkString) transformField {
       case ("baseLevel", x) => ("characterLevel", x)
       case ("level", x)     => ("iLevel", x)
@@ -19,7 +22,7 @@ object Items extends Dynamic {
     itemJson
       .extract[List[CraftedItem]]
       .map { item: CraftedItem =>
-        reformatName(item.name) -> item
+        item.name -> item
       }
       .toMap
   }

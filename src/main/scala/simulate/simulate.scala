@@ -2,6 +2,7 @@ package simulate
 
 import scala.annotation.tailrec
 import scala.util.Random
+import scala.util.chaining._
 
 import com.typesafe.scalalogging.Logger
 
@@ -67,7 +68,10 @@ object Simulate {
         probabilityFactor(ability.successRate + curr.modifier.successRate, flag) *
         (ability.efficiency + curr.modifier.efficiency)
     return curr.copy(
-      quality = curr.quality + math.round(qualityIncrease).intValue()
+      quality = math.min(
+        curr.quality + math.round(qualityIncrease).intValue(),
+        curr.item.maxQuality
+      )
     )
   }
 
@@ -85,7 +89,7 @@ object Simulate {
       .filter(_.duration > 0)
       .map(x => x.copy(duration = x.duration - 1))
     val nextModifiers = curr.modifiers filter {
-      case (e, m) => nextEffects contains e
+      case (u, m) => nextEffects.exists(e => e.id == u)
     }
     curr.copy(activeEffects = nextEffects, modifiers = nextModifiers)
   }
@@ -110,7 +114,7 @@ object Simulate {
       effect.preFn(effect, state, ability) match {
         case (newState, Keep) => newState
         case (newState, newMod: Modifier) => {
-          val newModifiers = newState.modifiers + (effect -> newMod)
+          val newModifiers = newState.modifiers + (effect.id -> newMod)
           newState.copy(modifiers = newModifiers)
         }
       }
@@ -126,7 +130,7 @@ object Simulate {
     effect.postFn(effect, prev, state, ability) match {
       case (newState, Keep) => newState
       case (newState, newMod: Modifier) => {
-        val newModifiers = newState.modifiers + (effect -> newMod)
+        val newModifiers = newState.modifiers + (effect.id -> newMod)
         newState.copy(modifiers = newModifiers)
       }
     }
@@ -135,7 +139,8 @@ object Simulate {
   def simulateOne(
     curr: CraftingState,
     ability: Ability,
-    flag: Flag
+    flag: Flag,
+    debug: Boolean = false
   ): CraftingState = {
     var state = curr
     state = simulatePreEffects(state, ability, flag)
@@ -150,14 +155,20 @@ object Simulate {
     }
     state = simulatePostEffects(preState, state, ability, flag)
     state = simulateCommon(state, ability, flag)
-    state
+    state.copy(stepsExecuted = state.stepsExecuted + 1).also { s =>
+      if (debug) {
+        println(f"Casted ${ability.name}")
+        s.printForDebug()
+      }
+    }
   }
 
   @tailrec
   def simulate(
     state: CraftingState,
     abilitySeries: List[Ability],
-    flag: Flag
+    flag: Flag,
+    debug: Boolean = false
   ): CraftingState = abilitySeries match {
     case Nil => state
     case _ if state.durability <= 0 =>
@@ -166,24 +177,42 @@ object Simulate {
           s"Termining after step ${s.stepsExecuted} because item is at 0 durability."
         )
       }
+    case _ if state.progress >= state.item.difficulty => state
     case ability :: rest if ability.CPCost > state.remainingCP =>
       simulate(
         state also { _ =>
           logger.warn(s"Insufficient CP to use ability ${ability}. Skipping.")
         },
         rest,
-        flag
+        flag,
+        debug
+      )
+    case ability :: rest
+        // TODO(colin): unified "can cast" mechanism for abilities
+        // TODO(colin): extract inner quiet out of weaver
+        if ability.name == "Byregot's Blessing" && data.weaver.Abilities
+          .countInnerQuiet(state) == 0 =>
+      simulate(
+        state also { _ =>
+          logger.warn("Skipping Byregot's Blessing due to no IQ stacks.")
+        },
+        rest,
+        flag,
+        debug
       )
     case ability :: rest =>
-      simulate(simulateOne(state, ability, flag), rest, flag)
+      simulate(simulateOne(state, ability, flag, debug), rest, flag, debug)
   }
 
   def simulateN(
     state: CraftingState,
-    abilitySeries: List[Ability],
+    abilitySeries: Vector[Ability],
     flag: Flag,
-    n: Int
+    n: Int,
+    debug: Boolean = false
   ): List[CraftingState] =
-    (0 until n).map(_ => simulate(state, abilitySeries, flag)).toList
+    (0 until n)
+      .map(_ => simulate(state, abilitySeries.toList, flag, debug))
+      .toList
 
 }

@@ -1,9 +1,11 @@
 package data.weaver
-
 import types._
 import types.Implicits._
 import simulate.CraftingModel
 import simulate.Simulate
+
+import scala.util.chaining._
+import java.util.UUID
 
 object Abilities {
   val INNER_QUIET = "Inner Quiet"
@@ -14,11 +16,12 @@ object Abilities {
     val curr     = countInnerQuiet(state)
     val numToAdd = math.min(curr + n, 11) - curr
     val newIQMod = state.modifiers
-      .getOrElse(InnerQuiet.otherEffect, Modifier.NoModifier) +
+      .getOrElse(InnerQuiet.otherEffect.id, Modifier.NoModifier) +
       Modifier.buff(INNER_QUIET, numToAdd)
-    state.copy(
-      modifiers = state.modifiers + (InnerQuiet.otherEffect -> newIQMod)
-    )
+    state
+      .copy(
+        modifiers = state.modifiers + (InnerQuiet.otherEffect.id -> newIQMod)
+      )
   }
 
   val BasicSynthesis = Ability(
@@ -51,7 +54,7 @@ object Abilities {
     requiredLevel = 7
   )
 
-  val SteadyHand = Ability(
+  val SteadyHand: Ability = Ability(
     name = "Steady Hand",
     CPCost = 22,
     abilityType = AbilityType.Buff,
@@ -60,13 +63,19 @@ object Abilities {
     durabilityLoss = 0,
     requiredLevel = 9,
     otherEffect = Effect(
-      preFn = (_, state, ability) => (state, Modifier.successRateBoost(0.2)),
+      id = UUID.randomUUID(),
+      preFn = (e, state, ability) =>
+        ability match {
+          case SteadyHand  => (state.withEffectRemoved(e), Modifier.NoModifier)
+          case SteadyHand2 => (state.withEffectRemoved(e), Modifier.NoModifier)
+          case _           => (state, Modifier.successRateBoost(0.2))
+        },
       postFn = Effect.NoEffectFn,
       duration = 5
     )
   )
 
-  val InnerQuiet = Ability(
+  val InnerQuiet: Ability = Ability(
     name = "Inner Quiet",
     CPCost = 18,
     abilityType = AbilityType.Buff,
@@ -75,6 +84,7 @@ object Abilities {
     durabilityLoss = 0,
     requiredLevel = 11,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = (e, curr, ability) =>
         ability match {
           case ByregotsBlessing =>
@@ -84,22 +94,25 @@ object Abilities {
                 0.2 * countInnerQuiet(curr)
               )
             )
+          case InnerQuiet =>
+            (curr.withEffectRemoved(e), Keep)
           case _ => (curr, Keep)
         },
       postFn = (e, prev, curr, ability) =>
         ability match {
           case ByregotsBlessing =>
             (curr.withEffectRemoved(e), Modifier.NoModifier)
-          case _ if curr.quality > prev.quality =>
+          case _ if curr.quality > prev.quality => {
             (
-              addInnerQuietBuffs(curr, 1),
-              curr.modifiers
-                .getOrElse(e, Modifier.NoModifier) +
+              curr,
+              addInnerQuietBuffs(curr, 1).modifiers
+                .getOrElse(InnerQuiet.otherEffect.id, Modifier.NoModifier) +
                 Modifier.statsBoost(
                   control =
                     math.round(math.floor(0.2 * curr.stats.control)).toInt
                 )
             )
+          }
           case _ => (curr, Keep)
         },
       1000000
@@ -115,6 +128,7 @@ object Abilities {
     durabilityLoss = 0,
     requiredLevel = 13,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = (e, curr, ability) =>
         ability match {
           case FocusedSynthesis => (curr, Modifier.successRateBoost(1.0))
@@ -138,7 +152,7 @@ object Abilities {
 
   val StandardTouch = Ability(
     name = "Standard Touch",
-    CPCost = 38,
+    CPCost = 32,
     abilityType = AbilityType.Quality,
     efficiency = 1.25,
     successRate = 0.8,
@@ -156,6 +170,7 @@ object Abilities {
     requiredLevel = 21,
     onceOnly = true,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = (e, curr, ability) =>
         if (ability.name contains "Touch") {
           (curr, Modifier.efficiencyBoost(ability.efficiency)),
@@ -197,7 +212,7 @@ object Abilities {
 
   val BrandOfTheElements = Ability(
     name = "Brand of the Elements",
-    CPCost = 0,
+    CPCost = 6,
     abilityType = AbilityType.Progress,
     efficiency = 1.0,
     successRate = 0.9,
@@ -207,7 +222,7 @@ object Abilities {
 
   val NameOfTheElements = Ability(
     name = "Name of the Elements",
-    CPCost = 0,
+    CPCost = 15,
     abilityType = AbilityType.Buff,
     efficiency = 0.0,
     successRate = 1.0,
@@ -215,6 +230,7 @@ object Abilities {
     requiredLevel = 37,
     onceOnly = true,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = (e, curr, ability) =>
         ability match {
           case BrandOfTheElements =>
@@ -232,7 +248,7 @@ object Abilities {
     )
   )
 
-  val SteadyHand2 = Ability(
+  val SteadyHand2: Ability = Ability(
     name = "Steady Hand II",
     CPCost = 25,
     abilityType = AbilityType.Buff,
@@ -242,7 +258,13 @@ object Abilities {
     requiredLevel = 37,
     onceOnly = false,
     otherEffect = Effect(
-      preFn = (_, state, ability) => (state, Modifier.successRateBoost(0.3)),
+      id = UUID.randomUUID(),
+      preFn = (e, state, ability) =>
+        ability match {
+          case SteadyHand  => (state.withEffectRemoved(e), Modifier.NoModifier)
+          case SteadyHand2 => (state.withEffectRemoved(e), Modifier.NoModifier)
+          case _           => (state, Modifier.successRateBoost(0.3))
+        },
       postFn = Effect.NoEffectFn,
       duration = 5
     )
@@ -288,6 +310,7 @@ object Abilities {
     durabilityLoss = 10,
     requiredLevel = 53,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = Effect.NoEffectFn,
       postFn = (e, prev, curr, ability) => {
         // Technically we could be at max quality and the action could still
@@ -342,6 +365,7 @@ object Abilities {
     durabilityLoss = 10,
     requiredLevel = 64,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = Effect.NoEffectFn,
       postFn = (e, prev, curr, ability) => {
         if (prev.quality < curr.quality) {
@@ -355,7 +379,7 @@ object Abilities {
     )
   )
 
-  val Manipulation2 = Ability(
+  val Manipulation2: Ability = Ability(
     name = "Manipulation II",
     CPCost = 96,
     abilityType = AbilityType.Buff,
@@ -364,9 +388,16 @@ object Abilities {
     durabilityLoss = 0,
     requiredLevel = 65,
     otherEffect = Effect(
-      preFn = Effect.NoEffectFn,
+      id = UUID.randomUUID(),
+      preFn = (e, curr, ability) => {
+        if (ability == Manipulation2) {
+          (curr.withEffectRemoved(e), Modifier.NoModifier)
+        } else {
+          (curr, Modifier.NoModifier)
+        }
+      },
       postFn = (e, prev, curr, ability) => {
-        if (e.duration == 8) {
+        if (e.duration == 8 || curr.item.durability == 0) {
           // Hack not to restore durability until the next step.
           (curr, Modifier.NoModifier)
         } else {
@@ -404,7 +435,7 @@ object Abilities {
 
   val FocusedTouch = Ability(
     name = "Focused Touch",
-    CPCost = 5,
+    CPCost = 18,
     abilityType = AbilityType.Quality,
     efficiency = 1.5,
     successRate = 0.5,
@@ -421,6 +452,7 @@ object Abilities {
     durabilityLoss = 20,
     requiredLevel = 71,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       preFn = Effect.NoEffectFn,
       postFn = (e, prev, curr, ability) => {
         // TODO(colin): does it always increase stacks, or just on success?
@@ -443,6 +475,7 @@ object Abilities {
     durabilityLoss = 20,
     requiredLevel = 72,
     otherEffect = Effect(
+      id = UUID.randomUUID(),
       // TODO(colin): what's the actual efficiency penalty? I presume it doesn't
       // matter as it likely doesn't make sense to use this at < 20 durability?
       preFn = (e, curr, ability) =>
@@ -487,7 +520,7 @@ object Abilities {
   // val InitialPreparations = ...
   // TODO(colin): implement reuse
 
-  val all: List[Ability] = List(
+  val all: Vector[Ability] = Vector(
     BasicSynthesis,
     BasicTouch,
     MastersMend,
@@ -513,6 +546,8 @@ object Abilities {
     PrudentTouch,
     FocusedSynthesis,
     FocusedTouch,
-    PreparatoryTouch
+    PreparatoryTouch,
+    RapidSynthesis3,
+    DelicateSynthesis
   )
 }

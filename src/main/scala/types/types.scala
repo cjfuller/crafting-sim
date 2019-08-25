@@ -1,5 +1,7 @@
 package types
 
+import java.util.UUID
+
 object TypeDefs {
   type EffectFn =
     (Effect, CraftingState, Ability) => (CraftingState, ModifierT)
@@ -80,7 +82,7 @@ case class Modifier(
     this.stats + other.stats,
     other.buffs ++ this.buffs.map {
       case (k: String, v: Int) =>
-        (k, other.buffs.getOrElse(k, 0))
+        (k, other.buffs.getOrElse(k, 0) + v)
     }
   )
 }
@@ -104,6 +106,7 @@ object Modifier {
 object Keep extends ModifierT
 
 case class Effect(
+  id: UUID,
   preFn: EffectFn,
   postFn: PostEffectFn,
   duration: Int
@@ -115,6 +118,7 @@ object Effect {
   val KeepEffectFn: EffectFn =
     (e: Effect, state: CraftingState, ability: Ability) => (state, Keep)
   val NoEffect = Effect(
+    UUID.randomUUID(),
     NoEffectFn,
     NoEffectFn,
     0
@@ -131,7 +135,7 @@ case class CraftingState(
   activeEffects: List[Effect],
   stepsExecuted: Int,
   condition: Condition,
-  modifiers: Map[Effect, Modifier] = Map()
+  modifiers: Map[UUID, Modifier] = Map()
 ) {
   def modifier: Modifier = modifiers.foldLeft(Modifier.NoModifier) {
     case (acc, (_, mod)) => acc + mod
@@ -142,6 +146,15 @@ case class CraftingState(
       activeEffects = activeEffects.filterNot(_ == e),
       modifiers = modifiers.filterNot { case (k, v) => k == e }
     )
+
+  def printForDebug() {
+    println(
+      s"progress: $progress / ${item.difficulty}\n" +
+        s"quality: $quality / ${item.maxQuality}\n" +
+        s"durability: $durability\n" +
+        s"buffs: ${this.modifier.buffs}\n"
+    )
+  }
 }
 
 case class Ability(
