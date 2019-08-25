@@ -397,7 +397,7 @@ object Abilities {
         }
       },
       postFn = (e, prev, curr, ability) => {
-        if (e.duration == 8 || curr.item.durability == 0) {
+        if (e.duration == 8 || curr.durability == 0) {
           // Hack not to restore durability until the next step.
           (curr, Modifier.NoModifier)
         } else {
