@@ -532,8 +532,9 @@ object Abilities {
     GreatStrides,
     MastersMend2,
     StandardSynthesis,
-    BrandOfTheElements,
-    NameOfTheElements,
+    // TODO(colin): figure out bug with Brand/Name and reenable
+    //BrandOfTheElements,
+    //NameOfTheElements,
     SteadyHand2,
     AdvancedTouch,
     CarefulSynthesis2,
