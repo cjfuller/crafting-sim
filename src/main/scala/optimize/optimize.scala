@@ -136,10 +136,13 @@ object Optimizer {
     } map { steps =>
       val states                 = Simulate.simulateN(initialState, steps, flag, numSims)
       val maxNumberStepsExecuted = states.map(_.stepsExecuted).max
+      val worst =
+        Simulate.simulateN(initialState, steps, Flag.WorstCase, 1).head
       Stats.calculateRunResult(
         initialState.item,
         steps.slice(0, maxNumberStepsExecuted),
-        states
+        states,
+        worst
       )
     }
 
@@ -168,8 +171,10 @@ object Optimizer {
         Stats.calculateRunResult(
           initialState.item,
           steps,
-          Simulate.simulateN(initialState, steps, flag, numSims)
+          Simulate.simulateN(initialState, steps, flag, numSims),
+          Simulate.simulateN(initialState, steps, Flag.WorstCase, 1).head
         )
+
       }
 
     while (temperature > 1) {

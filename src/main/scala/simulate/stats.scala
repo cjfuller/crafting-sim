@@ -34,17 +34,20 @@ object Stats {
   def calculateRunResult(
     item: CraftedItem,
     steps: Vector[Ability],
-    result: List[CraftingState]
+    result: List[CraftingState],
+    worstCaseState: CraftingState
   ) =
     SimulationRunResult(
       item,
       steps,
-      calculateCraftingStats(calculateSummaries(result))
+      calculateCraftingStats(calculateSummaries(result)),
+      calculateCraftingStats(calculateSummaries(List(worstCaseState)))
     )
 }
 
 case class SimulationRunResult(
   item: CraftedItem,
   steps: Vector[Ability],
-  stats: CraftingStats
+  stats: CraftingStats,
+  worstCaseStats: CraftingStats
 )

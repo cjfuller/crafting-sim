@@ -94,17 +94,6 @@ object Simulate {
     curr.copy(activeEffects = nextEffects, modifiers = nextModifiers)
   }
 
-  def simulateCommon(
-    curr: CraftingState,
-    ability: Ability,
-    flag: Flag
-  ): CraftingState =
-    curr
-      .let(simulateCP(_, ability, flag))
-      .let(simulateDurability(_, ability, flag))
-      .let(simulateCondition(_, ability, flag))
-      .let(decrementEffects)
-
   def simulatePreEffects(
     curr: CraftingState,
     ability: Ability,
@@ -153,8 +142,11 @@ object Simulate {
       case AbilityType.Special  => ability.specialEffect(state, ability, flag)
       case _                    => state
     }
+    state = simulateCP(state, ability, flag)
+    state = simulateDurability(state, ability, flag)
+    state = simulateCondition(state, ability, flag)
     state = simulatePostEffects(preState, state, ability, flag)
-    state = simulateCommon(state, ability, flag)
+    state = decrementEffects(state)
     state.copy(stepsExecuted = state.stepsExecuted + 1).also { s =>
       if (debug) {
         println(f"Casted ${ability.name}")
