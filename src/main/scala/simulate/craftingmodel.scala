@@ -67,7 +67,7 @@ object CraftingModel {
         1.834712812e-5 * math.pow(stats.craftsmanship, 2) +
           0.1904074773 * stats.craftsmanship +
           1.544103837
-      case _ => 2.14959 * stats.craftsmanship + 1.6
+      case _ => 0.214959 * stats.craftsmanship + 1.6
     }
     val levelDifference = crafterILevel - item.iLevel
     val levelAdjustment = levelDifference match {
