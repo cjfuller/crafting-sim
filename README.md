@@ -87,7 +87,7 @@ something missing you want added, file an issue! (See below.)
 - [ ] Armorer
 - [ ] Blacksmith
 - [ ] Carpenter
-- [ ] Culinarian
+- [x] Culinarian (to lv 54)
 - [ ] Goldsmith
 - [ ] Leatherworker
 - [x] Weaver

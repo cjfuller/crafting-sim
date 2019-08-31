@@ -1,6 +1,7 @@
 package craftingsim
 
 import _root_.types._
+import data.culinarian
 import data.weaver
 import optimize.Optimizer
 import simulate.Simulate
@@ -20,18 +21,33 @@ class CLI extends Command(description = "run a crafting optimizer") {
     opt[Option[Int]](description = "your crafter's CP")
   var level =
     opt[Option[Int]](description = "your crafter's level")
+  var cls =
+    opt[Option[String]](description = "your crafter's class (lower case)")
 
   var item = arg[String](description = "item to craft")
 }
 
 object Main {
+  def itemsByClass(cls: String): Map[String, CraftedItem] = cls match {
+    case "weaver"     => weaver.Items.allByName
+    case "culinarian" => culinarian.Items.allByName
+  }
+  val abilitiesByClass = Map(
+    "weaver"     -> weaver.Abilities.all,
+    "culinarian" -> culinarian.Abilities.all
+  )
   def main(args: Array[String]) {
     Cli.parse(args).withCommand(new CLI) {
       case opts =>
-        if (List(opts.craftsmanship, opts.control, opts.cp, opts.level)
-              .exists(_ == None)) {
+        if (List(
+              opts.craftsmanship,
+              opts.control,
+              opts.cp,
+              opts.level,
+              opts.cls
+            ).exists(_ == None)) {
           throw new Exception(
-            "You must provide all of craftsmanship, control, cp, and level."
+            "You must provide all of craftsmanship, control, cp, class, and level."
           )
         }
         val character: CharacterStats = CharacterStats(
@@ -40,7 +56,7 @@ object Main {
           CP = opts.cp.get,
           level = opts.level.get
         )
-        val item = weaver.Items.allByName
+        val item = itemsByClass(opts.cls.get)
           .get(opts.item)
           .orElse({ throw new Exception("Item not found") })
           .get
@@ -57,7 +73,7 @@ object Main {
           stepsExecuted = 0
         )
         val best = Optimizer.optimizeFully(
-          weaver.Abilities.all.filter(_.requiredLevel <= 73),
+          abilitiesByClass(opts.cls.get).filter(_.requiredLevel <= 73),
           initialState,
           Flag.Probabilistic,
           20
