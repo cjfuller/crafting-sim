@@ -181,8 +181,7 @@ object Simulate {
       )
     case ability :: rest
         // TODO(colin): unified "can cast" mechanism for abilities
-        // TODO(colin): extract inner quiet out of weaver
-        if ability.name == "Byregot's Blessing" && data.weaver.Abilities
+        if ability.name == "Byregot's Blessing" && data.SharedAbilities
           .countInnerQuiet(state) == 0 =>
       simulate(
         state also { _ =>
