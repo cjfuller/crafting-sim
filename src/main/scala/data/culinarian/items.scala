@@ -1,4 +1,4 @@
-package data.weaver
+package data.culinarian
 
 import scala.language.dynamics
 import scala.io.Source
@@ -10,5 +10,5 @@ import data.ItemReader
 import types._
 
 object Items extends ItemReader {
-  val resourceName = "Weaver.json"
+  val resourceName = "Culinarian.json"
 }
