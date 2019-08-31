@@ -73,7 +73,8 @@ object Main {
           stepsExecuted = 0
         )
         val best = Optimizer.optimizeFully(
-          abilitiesByClass(opts.cls.get).filter(_.requiredLevel <= 73),
+          abilitiesByClass(opts.cls.get)
+            .filter(_.requiredLevel <= character.level),
           initialState,
           Flag.Probabilistic,
           20
