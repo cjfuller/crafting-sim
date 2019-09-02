@@ -35,7 +35,7 @@ object Simulate {
         probabilityFactor(ability.successRate + curr.modifier.successRate, flag) *
         (ability.efficiency + curr.modifier.efficiency)
     return curr.copy(
-      progress = curr.progress + math.round(progressIncrease).intValue()
+      progress = curr.progress + math.floor(progressIncrease).intValue()
     )
   }
 
@@ -69,7 +69,7 @@ object Simulate {
         (ability.efficiency + curr.modifier.efficiency)
     return curr.copy(
       quality = math.min(
-        curr.quality + math.round(qualityIncrease).intValue(),
+        curr.quality + math.floor(qualityIncrease).intValue(),
         curr.item.maxQuality
       )
     )
