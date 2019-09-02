@@ -1,8 +1,9 @@
-module Main exposing (Msg(..), aboutView, classSelector, classes, document, init, itemSelector, main, maybeFetchItems, navbar, onUrlChange, onUrlRequest, optimizerView, stats, statsSelector, subscriptions, update, updateStatsIn, view)
+module Main exposing (Msg(..), aboutView, classSelector, classes, crossClassAbilities, crossClassSelector, document, getStat, init, itemSelector, main, maybeFetchItems, navbar, onUrlChange, onUrlRequest, optimizerView, stats, statsSelector, subscriptions, update, updateStatsIn, view)
 
 import Browser exposing (Document, UrlRequest)
 import Browser.Navigation exposing (Key)
 import Card exposing (card)
+import CheckboxInput exposing (checkbox)
 import Css exposing (..)
 import Dict exposing (Dict)
 import Html
@@ -31,6 +32,8 @@ type Msg
     | OptimizeComplete String
     | NavigateTo UrlRequest
     | NavigatedTo Page
+    | AddAbility String
+    | RemoveAbility String
 
 
 main =
@@ -47,6 +50,7 @@ main =
 init : () -> Url -> Key -> ( Model, Cmd Msg )
 init _ url key =
     ( { cls = ""
+      , crossClass = []
       , items = Dict.empty
       , stats =
             { level = Nothing
@@ -85,6 +89,8 @@ optimizerView model =
         , statsSelector model
         , vStrut spacingAmt
         , itemSelector model
+        , vStrut spacingAmt
+        , crossClassSelector model
         , vStrut spacingAmt
         , div
             [ css
@@ -321,6 +327,12 @@ update msg model =
                 Browser.External href ->
                     ( model, Browser.Navigation.load href )
 
+        AddAbility a ->
+            ( { model | crossClass = model.crossClass ++ [ a ] }, Cmd.none )
+
+        RemoveAbility a ->
+            ( { model | crossClass = List.filter (\x -> x /= a) model.crossClass }, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -344,6 +356,15 @@ onUrlChange u =
 
 classes =
     [ "weaver", "culinarian", "carpenter" ]
+
+
+crossClassAbilities =
+    [ "Careful Synthesis"
+    , "Careful Synthesis II"
+    , "Hasty Touch"
+    , "Reclaim"
+    , "Muscle Memory"
+    ]
 
 
 stats =
@@ -449,4 +470,27 @@ itemSelector model =
                     (Maybe.withDefault [] (Dict.get model.cls model.items))
             )
         ]
+        []
+
+
+crossClassSelector : Model -> Html Msg
+crossClassSelector model =
+    card "Cross-class abilities"
+        (List.map
+            (\a ->
+                let
+                    checked =
+                        List.member a model.crossClass
+                in
+                checkbox a
+                    checked
+                    (if checked then
+                        RemoveAbility a
+
+                     else
+                        AddAbility a
+                    )
+            )
+            crossClassAbilities
+        )
         []

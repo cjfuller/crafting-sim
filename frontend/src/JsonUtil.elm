@@ -26,6 +26,7 @@ encodeModel m =
         [ ( "cls", E.string m.cls )
         , ( "stats", encodeCrafterStats m.stats )
         , ( "item", E.string m.item )
+        , ( "crossClass", E.list E.string m.crossClass )
         ]
 
 

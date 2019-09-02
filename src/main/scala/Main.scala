@@ -24,6 +24,10 @@ class CLI extends Command(description = "run a crafting optimizer") {
     opt[Option[Int]](description = "your crafter's level")
   var cls =
     opt[Option[String]](description = "your crafter's class (lower case)")
+  var crossClass =
+    opt[Option[String]](
+      description = "comma-delimited list of cross-class abilities to include"
+    )
 
   var item = arg[String](description = "item to craft")
 }
@@ -38,7 +42,8 @@ case class StatsRequest(
 case class OptimizeRequest(
   val cls: String,
   val stats: StatsRequest,
-  val item: String
+  val item: String,
+  val crossClass: List[String]
 )
 
 object Main {
@@ -72,9 +77,16 @@ object Main {
       condition = Condition.Normal,
       stepsExecuted = 0
     )
+    val allAbilities = abilitiesByClass.values.flatten
+    val crossClass = req.crossClass
+      .flatMap({ name =>
+        allAbilities.filter(_.name == name).take(1)
+      })
+      .map(_.copy(requiredLevel = 1))
+    val availableAbilities = (abilitiesByClass(req.cls)
+      .filter(_.requiredLevel <= character.level)) ++ crossClass
     val best = Optimizer.optimizeFully(
-      abilitiesByClass(req.cls)
-        .filter(_.requiredLevel <= character.level),
+      availableAbilities,
       initialState,
       Flag.Probabilistic,
       20
@@ -114,7 +126,9 @@ object Main {
             cp = opts.cp.get,
             craftsmanship = opts.craftsmanship.get
           ),
-          item = opts.item
+          item = opts.item,
+          crossClass =
+            opts.crossClass.map(_.split(",").toList).getOrElse(List())
         )
         println(run(req, includeExample = opts.showExample))
     }

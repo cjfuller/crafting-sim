@@ -35,10 +35,6 @@ object Abilities {
     SharedAbilities.RapidSynthesis3,
     SharedAbilities.DelicateSynthesis,
     SharedAbilities.TrainedEye,
-    SharedAbilities.TrainedInstinct,
-    // TODO(colin): temporary cross-class ability hack; implement cross-class
-    // abilities and disable.
-    data.weaver.Abilities.CarefulSynthesis,
-    data.weaver.Abilities.CarefulSynthesis2
+    SharedAbilities.TrainedInstinct
   )
 }

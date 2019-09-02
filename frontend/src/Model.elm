@@ -19,6 +19,7 @@ type Page
 
 type alias Model =
     { cls : String
+    , crossClass : List String
     , items : Dict String (List String)
     , stats : CrafterStats
     , item : String
