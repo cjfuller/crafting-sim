@@ -10,6 +10,6 @@ object Scoring {
     if (srr.stats.successRate == 1.0 && srr.worstCaseStats.successRate == 1.0) {
       srr.stats.averageQuality
     } else {
-      -srr.item.maxQuality + srr.stats.averageQuality
+      -srr.item.maxQuality + (srr.stats.averageQuality * srr.stats.successRate)
     }
 }

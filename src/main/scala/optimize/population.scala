@@ -50,6 +50,29 @@ object Population {
       .toVector
   }
 
+  def swapForProgressAbility(
+    currAbilities: Vector[Ability],
+    allAbilities: Vector[Ability]
+  ): Vector[Ability] = {
+    val firstQuality =
+      currAbilities.indexWhere(_.abilityType == AbilityType.Quality)
+    if (firstQuality == -1) {
+      // Should already have checked that this case isn't happening in the
+      // caller, but do something sensible as a fallback anyway.
+      swapTwoAbilitiesRandomly(currAbilities)
+    } else {
+      val progressAbilities =
+        allAbilities.filter(_.abilityType == AbilityType.Progress)
+      val choice = progressAbilities(
+        new Random().nextInt(progressAbilities.length)
+      )
+      println(
+        s"Swapping ${currAbilities(firstQuality).name} for ${choice.name}"
+      )
+      currAbilities updated (firstQuality, choice)
+    }
+  }
+
   def addAbilityRandomly(
     currAbilities: Vector[Ability],
     allAbilities: Vector[Ability],

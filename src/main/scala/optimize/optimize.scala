@@ -30,6 +30,10 @@ object Optimizer {
             allAbilities,
             result.stats.averageRemaningCP.toInt
           )
+        case _
+            if (result.worstCaseStats.successRate == 0.0 &&
+              result.steps.exists(_.abilityType == AbilityType.Quality)) =>
+          Population.swapForProgressAbility(result.steps, allAbilities)
         case _ =>
           Population.mutateOneAbilityRandomly(
             result.steps,
@@ -38,6 +42,10 @@ object Optimizer {
       }
     } else {
       doProbabilistically {
+        case _
+            if (result.worstCaseStats.successRate == 0.0 &&
+              result.steps.exists(_.abilityType == AbilityType.Quality)) =>
+          Population.swapForProgressAbility(result.steps, allAbilities)
         case p if p < 0.5 =>
           Population.swapNeighboringAbilitiesRandomly(result.steps)
         case p if p < 0.6 && result.steps.length > 1 =>
@@ -61,6 +69,10 @@ object Optimizer {
     allResults: Vector[SimulationRunResult],
     allAbilities: Vector[Ability]
   ): Vector[Ability] = doProbabilistically {
+    case _
+        if (result.worstCaseStats.successRate == 0.0 &&
+          result.steps.exists(_.abilityType == AbilityType.Quality)) =>
+      Population.swapForProgressAbility(result.steps, allAbilities)
     case p if p < 0.7 =>
       Population.doCrossover(
         result.steps,
