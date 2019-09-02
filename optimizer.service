@@ -1,0 +1,12 @@
+[Unit]
+Description=FF14 crafting optimizer
+
+[Service]
+Type=simple
+WorkingDirectory=/app
+ExecStart=/usr/bin/java -jar ./crafting-sim-server.jar
+Restart=always
+User=optimizer
+
+[Install]
+WantedBy=multi-user.target

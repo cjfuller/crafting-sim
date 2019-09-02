@@ -53,6 +53,23 @@ object Abilities {
     //SharedAbilities.BrandOfTheElements,
     //SharedAbilities.NameOfTheElements,
     SharedAbilities.AdvancedTouch,
-    MuscleMemory
+    MuscleMemory,
+    SharedAbilities.HastyTouch2,
+    SharedAbilities.CarefulSynthesis3,
+    SharedAbilities.RapidSynthesis2,
+    SharedAbilities.PatientTouch,
+    SharedAbilities.Manipulation2,
+    SharedAbilities.PrudentTouch,
+    SharedAbilities.FocusedSynthesis,
+    SharedAbilities.FocusedTouch,
+    SharedAbilities.PreparatoryTouch,
+    SharedAbilities.RapidSynthesis3,
+    SharedAbilities.DelicateSynthesis,
+    SharedAbilities.TrainedEye,
+    SharedAbilities.TrainedInstinct,
+    // TODO(colin): temporary cross-class ability hack; implement cross-class
+    // abilities and disable.
+    data.weaver.Abilities.CarefulSynthesis,
+    data.weaver.Abilities.CarefulSynthesis2
   )
 }

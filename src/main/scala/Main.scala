@@ -27,15 +27,69 @@ class CLI extends Command(description = "run a crafting optimizer") {
   var item = arg[String](description = "item to craft")
 }
 
+case class StatsRequest(
+  val level: Int,
+  val craftsmanship: Int,
+  val control: Int,
+  val cp: Int
+)
+
+case class OptimizeRequest(
+  val cls: String,
+  val stats: StatsRequest,
+  val item: String
+)
+
 object Main {
-  def itemsByClass(cls: String): Map[String, CraftedItem] = cls match {
-    case "weaver"     => weaver.Items.allByName
-    case "culinarian" => culinarian.Items.allByName
-  }
   val abilitiesByClass = Map(
     "weaver"     -> weaver.Abilities.all,
     "culinarian" -> culinarian.Abilities.all
   )
+
+  def run(req: OptimizeRequest, includeExample: Boolean = false): String = {
+    val character: CharacterStats = CharacterStats(
+      craftsmanship = req.stats.craftsmanship,
+      control = req.stats.control,
+      CP = req.stats.cp,
+      level = req.stats.level
+    )
+    val item = data.ItemReader
+      .itemsByClass(req.cls)
+      .get(req.item)
+      .orElse({ throw new Exception("Item not found") })
+      .get
+
+    val initialState = CraftingState(
+      stats = character,
+      item = item,
+      remainingCP = character.CP,
+      progress = 0,
+      quality = 0,
+      durability = item.durability,
+      activeEffects = List(),
+      condition = Condition.Normal,
+      stepsExecuted = 0
+    )
+    val best = Optimizer.optimizeFully(
+      abilitiesByClass(req.cls)
+        .filter(_.requiredLevel <= character.level),
+      initialState,
+      Flag.Probabilistic,
+      20
+    )
+    var output = Vector(
+      f"Best result is: ${formatAbilities(best.steps)} with " +
+        f"expected quality ${best.stats.averageQuality} and success rate ${best.stats.successRate}"
+    )
+
+    if (includeExample) {
+      // TODO(colin): implement returning the debug example
+      println("One simulation example:")
+      Simulate
+        .simulate(initialState, best.steps.toList, Flag.Probabilistic, true)
+    }
+    (output :+ makeMacro(best.steps)).mkString("\n")
+  }
   def main(args: Array[String]) {
     Cli.parse(args).withCommand(new CLI) {
       case opts =>
@@ -50,50 +104,17 @@ object Main {
             "You must provide all of craftsmanship, control, cp, class, and level."
           )
         }
-        val character: CharacterStats = CharacterStats(
-          craftsmanship = opts.craftsmanship.get,
-          control = opts.control.get,
-          CP = opts.cp.get,
-          level = opts.level.get
+        val req = OptimizeRequest(
+          cls = opts.cls.get,
+          stats = StatsRequest(
+            level = opts.level.get,
+            control = opts.control.get,
+            cp = opts.cp.get,
+            craftsmanship = opts.craftsmanship.get
+          ),
+          item = opts.item
         )
-        val item = itemsByClass(opts.cls.get)
-          .get(opts.item)
-          .orElse({ throw new Exception("Item not found") })
-          .get
-
-        val initialState = CraftingState(
-          stats = character,
-          item = item,
-          remainingCP = character.CP,
-          progress = 0,
-          quality = 0,
-          durability = item.durability,
-          activeEffects = List(),
-          condition = Condition.Normal,
-          stepsExecuted = 0
-        )
-        val best = Optimizer.optimizeFully(
-          abilitiesByClass(opts.cls.get)
-            .filter(_.requiredLevel <= character.level),
-          initialState,
-          Flag.Probabilistic,
-          20
-        )
-        println(
-          f"Best result is: ${formatAbilities(best.steps)} with " +
-            f"expected quality ${best.stats.averageQuality} and success rate ${best.stats.successRate}"
-        )
-
-        if (opts.showExample) {
-
-          println("One simulation example:")
-          Simulate
-            .simulate(initialState, best.steps.toList, Flag.Probabilistic, true)
-
-        }
-        println(
-          makeMacro(best.steps)
-        )
+        println(run(req, includeExample = opts.showExample))
     }
   }
 }

@@ -38,3 +38,11 @@ trait ItemReader extends Dynamic {
 
   def selectDynamic(name: String): CraftedItem = all(name)
 }
+
+object ItemReader {
+  def itemsByClass(cls: String): Map[String, CraftedItem] = cls match {
+    case "weaver"     => weaver.Items.allByName
+    case "culinarian" => culinarian.Items.allByName
+    case _            => Map()
+  }
+}

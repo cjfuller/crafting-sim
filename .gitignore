@@ -2,3 +2,5 @@
 .metals
 target
 .DS_Store
+elm-stuff
+src/main/resources/elm.js
