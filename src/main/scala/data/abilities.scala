@@ -102,6 +102,24 @@ object SharedAbilities {
         ability match {
           case ByregotsBlessing =>
             (curr.withEffectRemoved(e), Modifier.NoModifier)
+          case Rumination =>
+            (
+              curr
+                .withEffectRemoved(e)
+                .copy(
+                  remainingCP = math.min(
+                    curr.stats.CP,
+                    curr.remainingCP +
+                      math
+                        .floor(
+                          (21 * countInnerQuiet(curr) - math
+                            .pow(countInnerQuiet(curr), 2) + 10) / 2
+                        )
+                        .toInt
+                  )
+                ),
+              Modifier.NoModifier
+            )
           case _ if curr.quality > prev.quality => {
             (
               curr,
@@ -138,6 +156,16 @@ object SharedAbilities {
       postFn = Effect.NoEffectFn,
       1
     )
+  )
+
+  val Rumination: Ability = Ability(
+    name = "Rumination",
+    CPCost = 0,
+    abilityType = AbilityType.CP,
+    efficiency = 0.0,
+    successRate = 1.0,
+    durabilityLoss = 0,
+    requiredLevel = 15
   )
 
   val SteadyHand2: Ability = Ability(

@@ -86,7 +86,7 @@ something missing you want added, file an issue! (See below.)
 - [ ] Alchemist
 - [ ] Armorer
 - [ ] Blacksmith
-- [ ] Carpenter
+- [x] Carpenter
 - [x] Culinarian
 - [ ] Goldsmith
 - [ ] Leatherworker

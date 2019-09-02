@@ -343,7 +343,7 @@ onUrlChange u =
 
 
 classes =
-    [ "weaver", "culinarian" ]
+    [ "weaver", "culinarian", "carpenter" ]
 
 
 stats =
