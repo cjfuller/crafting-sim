@@ -14,7 +14,7 @@ encodeCrafterStats : CrafterStats -> E.Value
 encodeCrafterStats s =
     E.object
         [ ( "level", num0 s.level )
-        , ( "craftsmanship", num0 s.level )
+        , ( "craftsmanship", num0 s.craftsmanship )
         , ( "control", num0 s.control )
         , ( "cp", num0 s.cp )
         ]
