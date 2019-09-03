@@ -106,7 +106,7 @@ condition is not included in the possible macros.
 
 Specializations are not implemented.
 
-Cross-class abilities are not implemented.
+Only some cross-class abilities are implemented.
 
 ## Reporting an issue
 
