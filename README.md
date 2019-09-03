@@ -5,6 +5,11 @@ given your crafter's stats. The goal is to maximize quality of an item while
 keeping the chance of success at 100%.
 
 ## Usage:
+
+### Web
+A hosted web version of the optimizer is at https://optimizer.volume14.org/
+
+### Command-line
 Download the latest release from the releases tab. Be sure to grab the
 correct one for windows or mac/linux. (You must have java installed, but you
 probably already do.)
