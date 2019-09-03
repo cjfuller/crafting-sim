@@ -190,7 +190,14 @@ object Optimizer {
       }
 
     while (temperature > 1) {
-      currentGeneration = currentGeneration.sortBy(Scoring.score)
+      currentGeneration = Heuristic.tryRemoveNoOps(
+        currentGeneration.sortBy(Scoring.score),
+        initialState,
+        temperature,
+        flag,
+        numSims
+      )
+
       val best = currentGeneration.last.steps
       logger.info(
         s"Current temperature is $temperature\n" +
