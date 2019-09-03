@@ -21,7 +21,7 @@ $ crafting-sim
 
 Here's a complete usage example:
 ```
-$ crafting-sim --craftsmanship=1434 --control=1328 --level=73 --cp=477 "Bright Linen Yarn"
+$ crafting-sim --class=weaver --craftsmanship=1434 --control=1328 --level=73 --cp=477 "Bright Linen Yarn"
 ```
 
 This will optimize for a while (and notify you of progress along the way), and eventually write out output like:
