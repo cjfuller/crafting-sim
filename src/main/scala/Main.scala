@@ -1,9 +1,16 @@
 package craftingsim
 
 import _root_.types._
-import data.carpenter
-import data.culinarian
-import data.weaver
+import data.{
+  weaver,
+  culinarian,
+  carpenter,
+  alchemist,
+  armorer,
+  blacksmith,
+  goldsmith,
+  leatherworker
+}
 import optimize.Optimizer
 import simulate.Simulate
 import simulate.Stats
@@ -48,9 +55,14 @@ case class OptimizeRequest(
 
 object Main {
   val abilitiesByClass = Map(
-    "weaver"     -> weaver.Abilities.all,
-    "culinarian" -> culinarian.Abilities.all,
-    "carpenter"  -> carpenter.Abilities.all
+    "weaver"        -> weaver.Abilities.all,
+    "culinarian"    -> culinarian.Abilities.all,
+    "carpenter"     -> carpenter.Abilities.all,
+    "alchemist"     -> alchemist.Abilities.all,
+    "armorer"       -> armorer.Abilities.all,
+    "blacksmith"    -> blacksmith.Abilities.all,
+    "goldsmith"     -> goldsmith.Abilities.all,
+    "leatherworker" -> leatherworker.Abilities.all
   )
 
   def run(req: OptimizeRequest, includeExample: Boolean = false): String = {

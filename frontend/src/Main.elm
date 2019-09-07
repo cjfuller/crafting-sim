@@ -355,7 +355,7 @@ onUrlChange u =
 
 
 classes =
-    [ "weaver", "culinarian", "carpenter" ]
+    [ "weaver", "culinarian", "carpenter", "alchemist", "armorer", "blacksmith", "goldsmith", "leatherworker" ]
 
 
 crossClassAbilities =

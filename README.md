@@ -88,13 +88,13 @@ crafting the item.
 This tool is very new and lots of things are not yet implemented. If there's
 something missing you want added, file an issue! (See below.)
 
-- [ ] Alchemist
-- [ ] Armorer
-- [ ] Blacksmith
+- [x] Alchemist (common abilities only)
+- [x] Armorer (common abilities only)
+- [x] Blacksmith (common abilities only)
 - [x] Carpenter
 - [x] Culinarian
-- [ ] Goldsmith
-- [ ] Leatherworker
+- [x] Goldsmith (common abilities only)
+- [x] Leatherworker (common abilities only)
 - [x] Weaver
 
 ### Known limitations (besides unimplemented classes)

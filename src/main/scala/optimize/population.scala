@@ -133,6 +133,9 @@ object Population {
   def swapNeighboringAbilitiesRandomly(
     curr: Vector[Ability]
   ): Vector[Ability] = {
+    if (curr.length <= 1) {
+      return curr
+    }
     val pos = Random.nextInt(curr.length - 1)
     swapTwoAbilities(curr, pos, pos + 1)
   }

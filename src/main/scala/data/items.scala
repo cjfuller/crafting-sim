@@ -41,9 +41,14 @@ trait ItemReader extends Dynamic {
 
 object ItemReader {
   def itemsByClass(cls: String): Map[String, CraftedItem] = cls match {
-    case "weaver"     => weaver.Items.allByName
-    case "culinarian" => culinarian.Items.allByName
-    case "carpenter"  => carpenter.Items.allByName
-    case _            => Map()
+    case "weaver"        => weaver.Items.allByName
+    case "culinarian"    => culinarian.Items.allByName
+    case "carpenter"     => carpenter.Items.allByName
+    case "alchemist"     => alchemist.Items.allByName
+    case "armorer"       => armorer.Items.allByName
+    case "blacksmith"    => blacksmith.Items.allByName
+    case "goldsmith"     => goldsmith.Items.allByName
+    case "leatherworker" => leatherworker.Items.allByName
+    case _               => Map()
   }
 }
