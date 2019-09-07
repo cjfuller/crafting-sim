@@ -2,19 +2,30 @@ module CheckboxInput exposing (checkbox)
 
 import Css exposing (..)
 import Html.Styled exposing (Html, div, i, text)
-import Html.Styled.Attributes exposing (class, css)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Attributes exposing (attribute, class, css, id, tabindex)
+import Html.Styled.Events exposing (on, onClick)
+import Json.Decode
 import SharedStyles exposing (..)
 import Struts exposing (..)
 
 
-
--- TODO(colin): accessibility markers for the checkbox
+sanitize : String -> String
+sanitize =
+    String.replace " " "_"
 
 
 checkbox : String -> Bool -> msg -> Html msg
 checkbox name checked action =
-    div [ css [ displayFlex, alignItems center, marginTop paddingAmt, hover [ cursor pointer ] ], onClick action ]
+    div
+        [ css
+            [ displayFlex
+            , alignItems center
+            , marginTop paddingAmt
+            , hover [ cursor pointer ]
+            ]
+        , onClick action
+        , on "keypress" (Json.Decode.succeed action)
+        ]
         [ div
             [ css
                 ([ width (px 14)
@@ -37,6 +48,16 @@ checkbox name checked action =
                             ]
                        )
                 )
+            , tabindex 0
+            , attribute "role" "checkbox"
+            , attribute "aria-labelledby" ("check_label_" ++ sanitize name)
+            , attribute "aria-checked"
+                (if checked then
+                    "true"
+
+                 else
+                    "false"
+                )
             ]
             (if checked then
                 [ i [ class "material-icons", css [ fontSize (px 14), color (hex "#fff") ] ] [ text "done" ]
@@ -46,5 +67,5 @@ checkbox name checked action =
                 []
             )
         , hStrut paddingAmt
-        , text name
+        , div [ id ("check_label_" ++ sanitize name) ] [ text name ]
         ]
