@@ -165,10 +165,11 @@ aboutView model =
     [ card "About"
         [ text """
     This crafting optimizer is intended to help with leveling and max-level
-    crafting in Final Fantasy 14. You input your class, stats, and the item
-    you want to craft, and it will optimize a series of crafting abilities,
-    trying to maximize quality while achieving a 100% success rate. It will
-    then generate a macro or series of macros to execute these actions.
+    crafting in Final Fantasy 14 Shadowbringers. You input your class, stats,
+    and the item you want to craft, and it will optimize a series of crafting
+    abilities, trying to maximize quality while achieving a 100% success
+    rate. It will then generate a macro or series of macros to execute these
+    actions.
     """
         , vStrut spacingAmt
         , text """Note that because the intended output target is a macro, this won't
