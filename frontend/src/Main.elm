@@ -181,7 +181,9 @@ aboutView model =
         , text """
     The underlying optimization algorithm uses a method that includes
     randomness, so you may get different result from multiple tries. If you
-    don't like the macro you got for some reason, try again!
+    don't like the macro you got for some reason, try again! We'll
+    temporarily save the best macro we've found recently, so trying again
+    won't make things worse.
     """
         , vStrut spacingAmt
         , text "Found a bug? "

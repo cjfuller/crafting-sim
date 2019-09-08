@@ -189,7 +189,12 @@ object Optimizer {
 
       }
 
-    while (temperature > 1) {
+    while (temperature > 0.005 * initialState.item.maxQuality) {
+      val stepSize = if (temperature > 0.2 * initialState.item.maxQuality) {
+        0.98
+      } else {
+        0.95
+      }
       currentGeneration = Heuristic.tryRemoveNoOps(
         currentGeneration.sortBy(Scoring.score),
         initialState,
@@ -199,7 +204,7 @@ object Optimizer {
       )
 
       val best = currentGeneration.last.steps
-      logger.info(
+      logger.debug(
         s"Current temperature is $temperature\n" +
           s"Best crafting sequence is ${util.util.formatAbilities(best)}"
       )
@@ -212,7 +217,7 @@ object Optimizer {
         numSims,
         temperature
       )
-      temperature *= 0.97
+      temperature *= stepSize
     }
 
     currentGeneration.sortBy(Scoring.score).last

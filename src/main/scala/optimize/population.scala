@@ -66,9 +66,6 @@ object Population {
       val choice = progressAbilities(
         new Random().nextInt(progressAbilities.length)
       )
-      println(
-        s"Swapping ${currAbilities(firstQuality).name} for ${choice.name}"
-      )
       currAbilities updated (firstQuality, choice)
     }
   }

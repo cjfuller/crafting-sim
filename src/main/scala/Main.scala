@@ -12,11 +12,17 @@ import data.{
   leatherworker
 }
 import optimize.Optimizer
+import optimize.Scoring
+import scalacache._
+import scalacache.caffeine._
+import scalacache.modes.try_._
+import scala.util.{Try, Success}
 import simulate.Simulate
 import simulate.Stats
 import _root_.util.util._
 
 import org.backuity.clist._
+import com.github.benmanes.caffeine.cache.Caffeine
 
 class CLI extends Command(description = "run a crafting optimizer") {
   var showExample =
@@ -44,16 +50,36 @@ case class StatsRequest(
   val craftsmanship: Int,
   val control: Int,
   val cp: Int
-)
+) {
+  def key(): String =
+    s"StatsRequest!${level}:${craftsmanship}:${control}:${cp}"
+}
 
 case class OptimizeRequest(
   val cls: String,
   val stats: StatsRequest,
   val item: String,
   val crossClass: List[String]
+) {
+  def key(): String =
+    s"""OptimizeRequest!${cls}::${stats.key}::${item}::${crossClass.mkString(
+      ","
+    )}"""
+}
+
+case class CachedResult(
+  val score: Double,
+  val content: String
 )
 
 object Main {
+  val underlyingCaffeineCache = Caffeine
+    .newBuilder()
+    .maximumSize(1000L)
+    .build[String, Entry[CachedResult]]
+  implicit val caffeineCache: Cache[CachedResult] =
+    CaffeineCache(underlyingCaffeineCache)
+
   val abilitiesByClass = Map(
     "weaver"        -> weaver.Abilities.all,
     "culinarian"    -> culinarian.Abilities.all,
@@ -103,6 +129,14 @@ object Main {
       Flag.Probabilistic,
       20
     )
+    val bestScore = Scoring.score(best)
+    val cached    = get(req.key)
+    cached match {
+      case Success(Some(CachedResult(score, content))) if score > bestScore =>
+        return content
+      case _ => ()
+    }
+
     var output = Vector(
       f"Best result is: ${formatAbilities(best.steps)} with " +
         f"expected quality ${best.stats.averageQuality} and success rate ${best.stats.successRate}"
@@ -114,7 +148,9 @@ object Main {
       Simulate
         .simulate(initialState, best.steps.toList, Flag.Probabilistic, true)
     }
-    (output :+ makeMacro(best.steps)).mkString("\n")
+    val resultString = (output :+ makeMacro(best.steps)).mkString("\n")
+    put(req.key)(CachedResult(bestScore, resultString), ttl = None)
+    resultString
   }
   def main(args: Array[String]) {
     Cli.parse(args).withCommand(new CLI) {

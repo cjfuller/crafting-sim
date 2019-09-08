@@ -11,6 +11,9 @@
   <logger name="simulation" level="error">
     <appender-ref ref="STDOUT" />
   </logger>
+  <logger name="optimizer" level="info">
+    <appender-ref ref="STDOUT" />
+  </logger>
   <logger name="org.eclipse.jetty" level="INFO" />
   <logger name="craftingsim.request" level="DEBUG" />
 </configuration>
