@@ -26,7 +26,7 @@ object Server extends ScalatraServlet with NativeJsonSupport {
   def cache(lifetimeSec: Int)(implicit response: HttpServletResponse) = {
     response.setHeader(
       "Cache-Control",
-      s"max-age=${lifetimeSec}, must-revalidate, proxy-revalidate"
+      s"public, max-age=${lifetimeSec}, must-revalidate, proxy-revalidate"
     )
   }
 
