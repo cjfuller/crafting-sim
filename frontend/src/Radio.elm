@@ -51,8 +51,8 @@ radio item selectedItem action =
             (if selectedItem == item then
                 [ div
                     [ css
-                        [ height (px 9)
-                        , width (px 9)
+                        [ height (px 10)
+                        , width (px 10)
                         , borderRadius (pct 50)
                         , backgroundColor colors.lightButton
                         ]
